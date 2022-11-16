@@ -18,14 +18,19 @@ services:
     env_file: .env
     # helps crossposter resolve the mastodon server internally
     hostname: "${MASTODON_DOMAIN}"
+    networks:
+       frontend:    
+          aliases:
+            - "${MASTODON_DOMAIN}"
+    networks:
+      - frontend
+      - backend
 
   postgres:
     restart: always
     image: postgres:14-alpine
     container_name: "postgres"
     env_file: mastodon.env
-    environment:
-      POSTGRES_HOST_AUTH_METHOD: trust
     healthcheck:
       test: pg_isready -U postgres   
       # test: ["CMD", "psql mastodon", "-c", "select now();"]
@@ -35,6 +40,8 @@ services:
     volumes:
       - "./mastodon/postgres:/var/lib/postgresql/data"
       #- "./mastodon.sql:/docker-entrypoint-initdb.d/seed.sql"
+    networks:
+      - backend
 
   redis:
     restart: always
@@ -44,6 +51,8 @@ services:
       test: redis-cli ping
     volumes:
       - ./mastodon/redis:/data
+    networks:
+      - backend
 
   mastodon:
     restart: always
@@ -66,6 +75,9 @@ services:
       #https://www.digitalocean.com/community/tutorials/how-to-share-data-between-docker-containers
       - mastodon-public:/opt/mastodon/public # map static files in volume for caddy
       - ./mastodon/public/system:/opt/mastodon/public/system
+    networks:
+      - frontend
+      - backend
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -84,6 +96,9 @@ services:
     depends_on:
       - postgres
       - redis
+    networks:
+      - frontend
+      - backend
 
   sidekiq:
     restart: always
@@ -99,8 +114,21 @@ services:
       - redis
     volumes:
       - ./mastodon/public/system:/mastodon/public/system
+    networks:
+      - frontend
+      - backend
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
 volumes:
   mastodon-public:
+
+networks:
+  frontend:
+    name: "${COMPOSE_PROJECT_NAME}_frontend"
+    ipam:
+      config:
+        - subnet: "${FRONTEND_SUBNET}"
+  backend:
+    name: "${COMPOSE_PROJECT_NAME}_backend"
+    internal: true
