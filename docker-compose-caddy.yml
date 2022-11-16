@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    container_name: caddy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/data:/data # Optional
+      - ./caddy/config:/config # Optional
+      - ./caddy/logs:/logs
+      - ./mastodon/public:/srv/mastodon/public:ro
+    networks:
+      - external_network
+      - internal_network
+    environment:
+      LETS_ENCRYPT_EMAIL: admin@example.com
+
+networks:
+  external_network:
+  internal_network:
+    internal: true
