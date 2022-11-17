@@ -4,6 +4,8 @@
 
 db-setup:
 	cp mastodon.env.sample mastodon.env
+	docker-compose -f docker-compose-pg.yaml up -d
+	sleep 5
 	docker compose run --rm -v $(shell pwd)/mastodon.env:/opt/mastodon/.env.production -e RUBYOPT=-W0 mastodon bundle exec rake db:setup
 
 rollback:
@@ -19,6 +21,7 @@ rollback-sudo:
 	sudo rm -rf mastodon.env.production
 
 run:
+
 	docker-compose up
 
 .PHONY: setup-db run delete

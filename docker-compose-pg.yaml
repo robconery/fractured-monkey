@@ -1,5 +1,7 @@
 version: "3.7"
 
+# due to: https://docs.docker.com/compose/startup-order/
+
 services:
   postgres:
     restart: always
