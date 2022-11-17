@@ -30,11 +30,11 @@
         }
 
         handle /api/v1/streaming* {
-                reverse_proxy mastodon-streaming:4000
+                reverse_proxy streaming:4000
         }
 
         handle {
-                reverse_proxy mastodon-web:3000
+                reverse_proxy mastodon:3000
         }
 
         header {
