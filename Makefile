@@ -8,10 +8,16 @@ db-setup:
 
 rollback:
 	docker-compose down
+	rm -rf caddy/
+	rm -rf mastodon/
+	rm -rf mastodon.env.production
+	
+rollback-sudo:
+	docker-compose down
 	sudo rm -rf caddy/
 	sudo rm -rf mastodon/
 	sudo rm -rf mastodon.env.production
-	
+
 run:
 	docker-compose up
 
