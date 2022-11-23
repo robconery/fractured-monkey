@@ -1,27 +1,46 @@
-#setup:
-#	touch mastodon.env.production
-#	docker compose run --rm -v $(shell pwd)/mastodon.env.production:/opt/mastodon/.env.production -e RUBYOPT=-W0 mastodon bundle exec rake mastodon:setup
+run:
+	docker compose up
 
-db-setup:
-	cp mastodon.env.sample mastodon.env
-	docker-compose -f docker-compose-pg.yaml up -d
-	sleep 5
-	docker compose run --rm -v $(shell pwd)/mastodon.env:/opt/mastodon/.env.production -e RUBYOPT=-W0 mastodon bundle exec rake db:setup
+run-postgres:
+	docker compose -f docker-compose-postgres.yml \
+		up \
+		-d
+	bash wait-for-db.sh
+
+run-caddy:
+	docker compose -f docker-compose-caddy.yml \
+		up
+
+setup:
+	echo '' > .env.production
+	docker compose -f docker-compose.yml \
+		run \
+		--rm \
+		-v $(shell pwd)/.env.production:/opt/mastodon/.env.production \
+		web \
+		bundle \
+		exec \
+		rake \
+		mastodon:setup
+
+setup-db:
+	cp .env.sample .env.production
+	docker compose -f docker-compose.yml \
+		run \
+		--rm \
+		-v $(shell pwd)/.env.production:/opt/mastodon/.env.production \
+		web \
+		bundle \
+		exec \
+		rake \
+		db:setup
 
 rollback:
-	docker-compose down
-	rm -rf caddy/
-	rm -rf mastodon/
-	rm -rf mastodon.env.production
-	
-rollback-sudo:
-	docker-compose down
-	sudo rm -rf caddy/
-	sudo rm -rf mastodon/
-	sudo rm -rf mastodon.env.production
+	touch .env.production
+	docker compose -f docker-compose.yml \
+		down
+	rm -rf caddy/ || true
+	rm -rf mastodon/ || true
+	rm -rf .env.production || true
 
-run:
-
-	docker-compose up
-
-.PHONY: setup-db run delete
+all: rollback run-postgres setup-db run

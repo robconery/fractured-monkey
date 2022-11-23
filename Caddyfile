@@ -34,7 +34,7 @@
         }
 
         handle {
-                reverse_proxy mastodon:3000
+                reverse_proxy web:3000
         }
 
         header {
