@@ -35,7 +35,7 @@ setup: config-caddy
 	docker-compose -f docker-compose.yml \
 		run \
 		--rm \
-		-v ${PWD}/.env.production:/opt/mastodon/.env.production \
+		-v ${CURDIR}/.env.production:/opt/mastodon/.env.production \
 		web \
 		bundle \
 		exec \
@@ -46,7 +46,7 @@ setup-db: config
 	docker-compose -f docker-compose.yml \
 		run \
 		--rm \
-		-v ${PWD}/.env.production:/opt/mastodon/.env.production \
+		-v ${CURDIR}/.env.production:/opt/mastodon/.env.production \
 		web \
 		bundle \
 		exec \
@@ -57,7 +57,7 @@ setup-admin:
 	docker-compose -f docker-compose.yml \
 		run \
 		--rm \
-		-v ${PWD}/.env.production:/opt/mastodon/.env.production \
+		-v ${CURDIR}/.env.production:/opt/mastodon/.env.production \
 		web \
 		bin/tootctl accounts create \
 		me \
