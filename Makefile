@@ -1,20 +1,20 @@
 run:
-	docker compose up
+	docker-compose up -d
 
 run-postgres:
 	mkdir -p mastodon/postgres/
-	docker compose -f docker-compose-postgres.yml \
+	docker-compose -f docker-compose-postgres.yml \
 		up \
 		-d
 	bash wait-for-db.sh
 
 run-caddy:
-	docker compose -f docker-compose-caddy.yml \
+	docker-compose -f docker-compose-caddy.yml \
 		up
 
 setup:
 	echo '' > .env.production
-	docker compose -f docker-compose.yml \
+	docker-compose -f docker-compose.yml \
 		run \
 		--rm \
 		-v $(shell pwd)/.env.production:/opt/mastodon/.env.production \
@@ -26,7 +26,7 @@ setup:
 
 setup-db:
 	cp .env.sample .env.production
-	docker compose -f docker-compose.yml \
+	docker-compose -f docker-compose.yml \
 		run \
 		--rm \
 		-v $(shell pwd)/.env.production:/opt/mastodon/.env.production \
@@ -38,7 +38,7 @@ setup-db:
 
 rollback:
 	touch .env.production
-	docker compose -f docker-compose.yml \
+	docker-compose -f docker-compose.yml \
 		down
 	rm -rf caddy/ || true
 	rm -rf mastodon/ || true
