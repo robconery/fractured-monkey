@@ -12,6 +12,7 @@
 }
 
 {$SITE_ADDRESS}:443 {
+        {$TLS_INTERNAL}
         log {
                 # format single_field common_log
                 output file /logs/access.log

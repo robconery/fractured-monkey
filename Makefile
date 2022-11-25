@@ -55,5 +55,6 @@ rollback:
 	rm -rf caddy/ || true
 	rm -rf mastodon/ || true
 	rm -rf .env.production || true
+	rm -rf .env.caddy.production || true
 
 all: rollback run-postgres setup-db run
