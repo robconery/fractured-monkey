@@ -67,6 +67,7 @@ setup-admin:
 
 rollback:
 	touch .env.production
+	touch .env.caddy.production
 	docker-compose -f docker-compose.yml \
 		down
 	rm -rf caddy/ || true
