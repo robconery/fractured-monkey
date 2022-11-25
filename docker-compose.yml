@@ -18,8 +18,7 @@ services:
     networks:
       - external_network
       - internal_network
-    environment:
-      LETS_ENCRYPT_EMAIL: admin@example.com
+    env_file: .env.caddy.production
       
   db:
     container_name: db
@@ -80,7 +79,7 @@ services:
 
   web:
     container_name: web
-    build: .
+    #build: .
     image: tootsuite/mastodon
     restart: always
     env_file: .env.production
@@ -106,7 +105,7 @@ services:
 
   streaming:
     container_name: streaming
-    build: .
+    #build: .
     image: tootsuite/mastodon
     restart: always
     env_file: .env.production
@@ -125,7 +124,7 @@ services:
 
   sidekiq:
     container_name: sidekiq
-    build: .
+    #build: .
     image: tootsuite/mastodon
     restart: always
     env_file: .env.production

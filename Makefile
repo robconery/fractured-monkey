@@ -1,23 +1,70 @@
+SHELL := /bin/bash 
+
 run:
-	docker compose up
+	docker-compose up -d
 
 run-postgres:
 	mkdir -p mastodon/postgres/
-	docker compose -f docker-compose-postgres.yml \
+	docker-compose -f docker-compose-postgres.yml \
 		up \
 		-d
 	bash wait-for-db.sh
 
 run-caddy:
-	docker compose -f docker-compose-caddy.yml \
+	docker-compose -f docker-compose-caddy.yml \
 		up
 
-setup:
+LETS_ENCRYPT_EMAIL ?= admin@localhost
+SITE_ADDRESS ?= localhost
+TLS_INTERNAL ?= TLS_INTERNAL=tls internal
+
+config-mastodon:
+	@sed -e "s;example.com;$(SITE_ADDRESS);g" .env.sample | \
+		tee .env.production
+
+config-caddy:
+	@sed -e "s;admin@example.com;$(LETS_ENCRYPT_EMAIL);g" .env.caddy.sample | \
+		sed -e "s;example.com;$(SITE_ADDRESS);g" | \
+		tee .env.caddy.production
+
+	@echo "" | tee -a .env.caddy.production
+	
+	@echo "$(TLS_INTERNAL)" | tee -a .env.caddy.production
+
+config-secrets:
+	export SECRET_KEY_BASE=$$(docker run \
+		--rm \
+		tootsuite/mastodon \
+		bundle \
+		exec \
+		rake \
+		secret); \
+	export OTP_SECRET=$$(docker run \
+		--rm \
+		tootsuite/mastodon \
+		bundle \
+		exec \
+		rake \
+		secret); \
+	export VAPID_SECRETS=$$(docker run \
+		--rm \
+		tootsuite/mastodon \
+		bundle \
+		exec \
+		rake \
+		mastodon:webpush:generate_vapid_key); \
+	echo "SECRET_KEY_BASE=$${SECRET_KEY_BASE}" | tee -a .env.production; \
+	echo "OTP_SECRET=$${OTP_SECRET}" | tee -a .env.production; \
+	echo "$${VAPID_SECRETS}" | tee -a .env.production;
+
+config: config-caddy config-mastodon config-secrets
+
+setup: config-caddy
 	echo '' > .env.production
-	docker compose -f docker-compose.yml \
+	docker-compose -f docker-compose.yml \
 		run \
 		--rm \
-		-v $(shell pwd)/.env.production:/opt/mastodon/.env.production \
+		-v ${CURDIR}/.env.production:/opt/mastodon/.env.production \
 		web \
 		bundle \
 		exec \
@@ -25,23 +72,41 @@ setup:
 		mastodon:setup
 
 setup-db:
-	cp .env.sample .env.production
-	docker compose -f docker-compose.yml \
+	docker-compose -f docker-compose.yml \
 		run \
 		--rm \
-		-v $(shell pwd)/.env.production:/opt/mastodon/.env.production \
+		-v ${CURDIR}/.env.production:/opt/mastodon/.env.production \
 		web \
 		bundle \
 		exec \
 		rake \
 		db:setup
 
+setup-admin:
+	@echo "URL: https://${SITE_ADDRESS}"
+	@echo "Username: me@${SITE_ADDRESS}"
+	@docker-compose -f docker-compose.yml \
+		run \
+		--rm \
+		-v ${CURDIR}/.env.production:/opt/mastodon/.env.production \
+		web \
+		bin/tootctl accounts create \
+		me \
+		--email me@${SITE_ADDRESS} \
+		--confirmed \
+		--role Owner
+
+setup-admin-txt:
+	make -s setup-admin | tee admin.txt
+
 rollback:
 	touch .env.production
-	docker compose -f docker-compose.yml \
+	touch .env.caddy.production
+	docker-compose -f docker-compose.yml \
 		down
 	rm -rf caddy/ || true
 	rm -rf mastodon/ || true
 	rm -rf .env.production || true
+	rm -rf .env.caddy.production || true
 
-all: rollback run-postgres setup-db run
+all: rollback run-postgres config setup-db setup-admin-txt run

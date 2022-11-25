@@ -2,3 +2,5 @@ _/
 mastodon/
 caddy/
 .env.production
+.env.caddy.production
+admin.txt
