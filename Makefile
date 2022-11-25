@@ -12,7 +12,25 @@ run-caddy:
 	docker-compose -f docker-compose-caddy.yml \
 		up
 
-setup:
+LETS_ENCRYPT_EMAIL ?= admin@localhost
+SITE_ADDRESS ?= localhost
+
+config-mastodon:
+	@sed -e "s;example.com;$(SITE_ADDRESS);g" .env.sample | \
+		tee .env.production
+
+config-caddy:
+	@sed -e "s;admin@example.com;$(LETS_ENCRYPT_EMAIL);g" .env.caddy.sample | \
+		sed -e "s;example.com;$(SITE_ADDRESS);g" | \
+		tee .env.caddy.production
+
+	@echo "" | tee -a .env.caddy.production
+	
+	@echo "TLS_INTERNAL=tls internal" | tee -a .env.caddy.production
+
+config: config-mastodon config-caddy
+
+setup: config-caddy
 	echo '' > .env.production
 	docker-compose -f docker-compose.yml \
 		run \
@@ -24,8 +42,7 @@ setup:
 		rake \
 		mastodon:setup
 
-setup-db:
-	cp .env.sample .env.production
+setup-db: config
 	docker-compose -f docker-compose.yml \
 		run \
 		--rm \
