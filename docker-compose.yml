@@ -80,7 +80,7 @@ services:
 
   web:
     container_name: web
-    build: .
+    #build: .
     image: tootsuite/mastodon
     restart: always
     env_file: .env.production
@@ -106,7 +106,7 @@ services:
 
   streaming:
     container_name: streaming
-    build: .
+    #build: .
     image: tootsuite/mastodon
     restart: always
     env_file: .env.production
@@ -125,7 +125,7 @@ services:
 
   sidekiq:
     container_name: sidekiq
-    build: .
+    #build: .
     image: tootsuite/mastodon
     restart: always
     env_file: .env.production
