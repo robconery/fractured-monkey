@@ -14,6 +14,7 @@ run-caddy:
 
 LETS_ENCRYPT_EMAIL ?= admin@localhost
 SITE_ADDRESS ?= localhost
+TLS_INTERNAL ?= TLS_INTERNAL=tls internal
 
 config-mastodon:
 	@sed -e "s;example.com;$(SITE_ADDRESS);g" .env.sample | \
@@ -26,7 +27,7 @@ config-caddy:
 
 	@echo "" | tee -a .env.caddy.production
 	
-	@echo "TLS_INTERNAL=tls internal" | tee -a .env.caddy.production
+	@echo "$(TLS_INTERNAL)" | tee -a .env.caddy.production
 
 config: config-mastodon config-caddy
 
@@ -42,7 +43,7 @@ setup: config-caddy
 		rake \
 		mastodon:setup
 
-setup-db: config
+setup-db:
 	docker-compose -f docker-compose.yml \
 		run \
 		--rm \
@@ -75,4 +76,4 @@ rollback:
 	rm -rf .env.production || true
 	rm -rf .env.caddy.production || true
 
-all: rollback run-postgres setup-db setup-admin run
+all: rollback run-postgres config setup-db setup-admin run
