@@ -35,7 +35,7 @@ setup: config-caddy
 	docker-compose -f docker-compose.yml \
 		run \
 		--rm \
-		-v $(pwd)/.env.production:/opt/mastodon/.env.production \
+		-v ${PWD}/.env.production:/opt/mastodon/.env.production \
 		web \
 		bundle \
 		exec \
@@ -46,7 +46,7 @@ setup-db: config
 	docker-compose -f docker-compose.yml \
 		run \
 		--rm \
-		-v $(pwd)/.env.production:/opt/mastodon/.env.production \
+		-v ${PWD}/.env.production:/opt/mastodon/.env.production \
 		web \
 		bundle \
 		exec \
@@ -57,11 +57,11 @@ setup-admin:
 	docker-compose -f docker-compose.yml \
 		run \
 		--rm \
-		-v $(pwd)/.env.production:/opt/mastodon/.env.production \
+		-v ${PWD}/.env.production:/opt/mastodon/.env.production \
 		web \
 		bin/tootctl accounts create \
-		admin \
-		--email admin@${SITE_ADDRESS} \
+		me \
+		--email me@${SITE_ADDRESS} \
 		--confirmed \
 		--role Owner
 
@@ -75,4 +75,4 @@ rollback:
 	rm -rf .env.production || true
 	rm -rf .env.caddy.production || true
 
-all: rollback run-postgres setup-db run
+all: rollback run-postgres setup-db setup-admin run
