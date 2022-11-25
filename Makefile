@@ -17,7 +17,7 @@ setup:
 	docker-compose -f docker-compose.yml \
 		run \
 		--rm \
-		-v $(shell pwd)/.env.production:/opt/mastodon/.env.production \
+		-v $(pwd)/.env.production:/opt/mastodon/.env.production \
 		web \
 		bundle \
 		exec \
@@ -29,7 +29,7 @@ setup-db:
 	docker-compose -f docker-compose.yml \
 		run \
 		--rm \
-		-v $(shell pwd)/.env.production:/opt/mastodon/.env.production \
+		-v $(pwd)/.env.production:/opt/mastodon/.env.production \
 		web \
 		bundle \
 		exec \
