@@ -36,6 +36,18 @@ setup-db:
 		rake \
 		db:setup
 
+setup-admin:
+	docker-compose -f docker-compose.yml \
+		run \
+		--rm \
+		-v $(pwd)/.env.production:/opt/mastodon/.env.production \
+		web \
+		bin/tootctl accounts create \
+		admin \
+		--email admin@${SITE_ADDRESS} \
+		--confirmed \
+		--role Owner
+
 rollback:
 	touch .env.production
 	docker-compose -f docker-compose.yml \
