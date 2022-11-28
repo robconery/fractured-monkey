@@ -55,7 +55,9 @@ setup-db:
 		db:setup
 
 setup-admin:
-	docker-compose -f docker-compose.yml \
+	@echo "URL: https://${SITE_ADDRESS}"
+	@echo "Username: me@${SITE_ADDRESS}"
+	@docker-compose -f docker-compose.yml \
 		run \
 		--rm \
 		-v ${CURDIR}/.env.production:/opt/mastodon/.env.production \
