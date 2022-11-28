@@ -18,21 +18,37 @@ Runs postgres via [docker-compose-postgres.yaml](./docker-compose-postgres.yaml)
 
 Runs caddy via [docker-compose-caddy.yaml](./docker-compose-caddy.yaml). This does not currently work, so we have embedded it in [docker-compose.yaml](./docker-compose.yaml) with its own volume.
 
+### config-mastodon
+
+Uses `sed` to inject `SITE_ADDRESS` into `.env.sample` and output the result to `.env.production`.
+
+### config-caddy
+
+Uses `sed` to inject `LETS_ENCRYPT_EMAIL` and `SITE_ADDRESS` into `.env.caddy.sample` and outputs the result to `.env.caddy.production`. It appends `TLS_INTERNAL` to the file, which defaults to `tls internal` for the purposes of local testing. This should be empty for production use.
+
+### config
+
+Runs `config-mastodon` and `config-caddy`.
+
 ### setup
 
 Runs mastodon setup interactively. This will create `.env.production`, a sample of which is at [.env.sample](./.env.sample). It will setup the database, and optionally prompt to create an admin account.
 
 ### setup-db
 
-Runs mastodon setup non-interactively with values copied from [.env.sample](./.env.sample). It will setup the database but not prompt to create an admin account.
+Runs mastodon setup non-interactively with values copied from [.env.sample](./.env.sample). It will run `config-caddy` prior to execution. It will setup the database but not prompt to create an admin account.
+
+### setup-admin
+
+This uses the [tootctl accounts create](https://docs.joinmastodon.org/admin/tootctl/#accounts-create) and the `web` container to create an account with the `Owner` role which you can use to login to your instance. We usually output the result of this elsewhere (e.g. `~/admin.txt`) during VM setup so that we can access it later.
 
 ### rollback
 
-Will run `docker compose down` to remove any running containers, and remove `caddy/`, `mastodon/`, which are mounted into the containers, and `.env.production`.
+Will run `docker compose down` to remove any running containers, and remove `caddy/`, `mastodon/`, which are mounted into the containers, as well as `.env.production and `.env.caddy`.
 
 ### all
 
-Runs the entire series of `rollback run-postgres setup-db run`.
+Runs the entire series of `rollback run-postgres config setup-db setup-admin run`.
 
 ## Notes
 
