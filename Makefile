@@ -29,7 +29,39 @@ config-caddy:
 	
 	@echo "$(TLS_INTERNAL)" | tee -a .env.caddy.production
 
-config: config-mastodon config-caddy
+config-secrets:
+	export SECRET_KEY_BASE=$$(docker-compose -f docker-compose.yml \
+		run \
+		--rm \
+		-v ${CURDIR}/.env.production:/opt/mastodon/.env.production \
+		web \
+		bundle \
+		exec \
+		rake \
+		secret); \
+	export OTP_SECRET=$$(docker-compose -f docker-compose.yml \
+		run \
+		--rm \
+		-v ${CURDIR}/.env.production:/opt/mastodon/.env.production \
+		web \
+		bundle \
+		exec \
+		rake \
+		secret); \
+	export VAPID_PRIVATE_AND_PUBLIC_KEY=$$(docker-compose -f docker-compose.yml \
+		run \
+		--rm \
+		-v ${CURDIR}/.env.production:/opt/mastodon/.env.production \
+		web \
+		bundle \
+		exec \
+		rake \
+		mastodon:webpush:generate_vapid_key); \
+	echo "SECRET_KEY_BASE=$${SECRET_KEY_BASE}" | tee -a .env.production; \
+	echo "OTP_SECRET=$${OTP_SECRET}" | tee -a .env.production; \
+	echo "$${VAPID_PRIVATE_AND_PUBLIC_KEY}" |  tee -a .env.production;
+
+config: config-caddy config-mastodon config-secrets
 
 setup: config-caddy
 	echo '' > .env.production

@@ -22,6 +22,10 @@ Runs caddy via [docker-compose-caddy.yaml](./docker-compose-caddy.yaml). This do
 
 Uses `sed` to inject `SITE_ADDRESS` into `.env.sample` and output the result to `.env.production`.
 
+### config-secrets
+
+Generates `SECRET_KEY_BASE`, `OTP_SECRET`, `VAPID_PRIVATE_KEY`, and `VAPID_PUBLIC_KEY` using `rake secret` and `rake mastodon:webpush:generate_vapid_key` respectively, and appends them to `.env.production`. See [secrets](https://docs.joinmastodon.org/admin/config/#secrets) for more details. This is run after `config-caddy` as it uses `docker-compose.yml` which depends on `.env.caddy.production` existing.
+
 ### config-caddy
 
 Uses `sed` to inject `LETS_ENCRYPT_EMAIL` and `SITE_ADDRESS` into `.env.caddy.sample` and outputs the result to `.env.caddy.production`. It appends `TLS_INTERNAL` to the file, which defaults to `tls internal` for the purposes of local testing. This should be empty for production use.
