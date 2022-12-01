@@ -50,9 +50,7 @@ config-secrets:
 		exec \
 		rake \
 		secret); \
-	echo "SECRET_KEY_BASE=$${SECRET_KEY_BASE}" | tee -a .env.production; \
-	echo "OTP_SECRET=$${OTP_SECRET}" | tee -a .env.production;
-	@docker-compose -f docker-compose.yml \
+	export VAPID_SECRETS=$$(docker-compose -f docker-compose.yml \
 		run \
 		--rm \
 		-v ${CURDIR}/.env.production:/opt/mastodon/.env.production \
@@ -60,8 +58,11 @@ config-secrets:
 		bundle \
 		exec \
 		rake \
-		mastodon:webpush:generate_vapid_key | tee -a .env.production;
-
+		mastodon:webpush:generate_vapid_key); \
+	echo "SECRET_KEY_BASE=$${SECRET_KEY_BASE}" | tee -a .env.production; \
+	echo "OTP_SECRET=$${OTP_SECRET}" | tee -a .env.production; \
+	echo "$${VAPID_SECRETS}" | tee -a .env.production;
+	
 config: config-caddy config-mastodon config-secrets
 
 setup: config-caddy
