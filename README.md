@@ -46,13 +46,17 @@ Runs mastodon setup non-interactively with values copied from [.env.sample](./.e
 
 This uses the [tootctl accounts create](https://docs.joinmastodon.org/admin/tootctl/#accounts-create) and the `web` container to create an account with the `Owner` role which you can use to login to your instance. We usually output the result of this elsewhere (e.g. `~/admin.txt`) during VM setup so that we can access it later.
 
+### setup-admin-txt
+
+Outputs the result of setup-admin to `admin.txt` in the current directory.
+
 ### rollback
 
 Will run `docker compose down` to remove any running containers, and remove `caddy/`, `mastodon/`, which are mounted into the containers, as well as `.env.production and `.env.caddy`.
 
 ### all
 
-Runs the entire series of `rollback run-postgres config setup-db setup-admin run`.
+Runs the entire series of `rollback run-postgres config setup-db setup-admin-txt run`.
 
 ## Notes
 
