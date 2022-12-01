@@ -32,33 +32,27 @@ config-caddy:
 	@echo "$(TLS_INTERNAL)" | tee -a .env.caddy.production
 
 config-secrets:
-	export SECRET_KEY_BASE=$$(docker-compose -f docker-compose.yml \
-		run -T \
+	export SECRET_KEY_BASE=$$(docker run \
 		--rm \
-		-v ${CURDIR}/.env.production:/opt/mastodon/.env.production \
-		web \
+		tootsuite/mastodon \
 		bundle \
 		exec \
 		rake \
-		secret 2> /dev/null); \
-	export OTP_SECRET=$$(docker-compose -f docker-compose.yml \
-		run -T \
+		secret); \
+	export OTP_SECRET=$$(docker run \
 		--rm \
-		-v ${CURDIR}/.env.production:/opt/mastodon/.env.production \
-		web \
+		tootsuite/mastodon \
 		bundle \
 		exec \
 		rake \
-		secret 2> /dev/null); \
-	export VAPID_SECRETS=$$(docker-compose -f docker-compose.yml \
-		run -T \
+		secret); \
+	export VAPID_SECRETS=$$(docker run \
 		--rm \
-		-v ${CURDIR}/.env.production:/opt/mastodon/.env.production \
-		web \
+		tootsuite/mastodon \
 		bundle \
 		exec \
 		rake \
-		mastodon:webpush:generate_vapid_key 2> /dev/null); \
+		mastodon:webpush:generate_vapid_key); \
 	echo "SECRET_KEY_BASE=$${SECRET_KEY_BASE}" | tee -a .env.production; \
 	echo "OTP_SECRET=$${OTP_SECRET}" | tee -a .env.production; \
 	echo "$${VAPID_SECRETS}" | tee -a .env.production;
@@ -100,8 +94,7 @@ setup-admin:
 		me \
 		--email me@${SITE_ADDRESS} \
 		--confirmed \
-		--role Owner \
-		2> /dev/null
+		--role Owner
 
 setup-admin-txt:
 	make setup-admin | tee admin.txt
