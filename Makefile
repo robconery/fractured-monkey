@@ -100,7 +100,7 @@ setup-admin:
 		--role Owner
 
 setup-admin-txt:
-        make setup-admin | tee admin.txt
+	make setup-admin | tee admin.txt
 
 rollback:
 	touch .env.production
