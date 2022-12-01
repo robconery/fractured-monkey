@@ -33,7 +33,7 @@ config-caddy:
 
 config-secrets:
 	export SECRET_KEY_BASE=$$(docker-compose -f docker-compose.yml \
-		run \
+		run -T \
 		--rm \
 		-v ${CURDIR}/.env.production:/opt/mastodon/.env.production \
 		web \
@@ -42,7 +42,7 @@ config-secrets:
 		rake \
 		secret 2> /dev/null); \
 	export OTP_SECRET=$$(docker-compose -f docker-compose.yml \
-		run \
+		run -T \
 		--rm \
 		-v ${CURDIR}/.env.production:/opt/mastodon/.env.production \
 		web \
@@ -51,7 +51,7 @@ config-secrets:
 		rake \
 		secret 2> /dev/null); \
 	export VAPID_SECRETS=$$(docker-compose -f docker-compose.yml \
-		run \
+		run -T \
 		--rm \
 		-v ${CURDIR}/.env.production:/opt/mastodon/.env.production \
 		web \
