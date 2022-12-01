@@ -99,6 +99,9 @@ setup-admin:
 		--confirmed \
 		--role Owner
 
+setup-admin-txt:
+        make setup-admin | tee admin.txt
+
 rollback:
 	touch .env.production
 	touch .env.caddy.production
@@ -109,4 +112,4 @@ rollback:
 	rm -rf .env.production || true
 	rm -rf .env.caddy.production || true
 
-all: rollback run-postgres config setup-db setup-admin run
+all: rollback run-postgres config setup-db setup-admin-txt run
