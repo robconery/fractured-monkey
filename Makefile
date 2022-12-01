@@ -40,7 +40,7 @@ config-secrets:
 		bundle \
 		exec \
 		rake \
-		secret); \
+		secret 2> /dev/null); \
 	export OTP_SECRET=$$(docker-compose -f docker-compose.yml \
 		run \
 		--rm \
@@ -49,7 +49,7 @@ config-secrets:
 		bundle \
 		exec \
 		rake \
-		secret); \
+		secret 2> /dev/null); \
 	export VAPID_SECRETS=$$(docker-compose -f docker-compose.yml \
 		run \
 		--rm \
@@ -58,11 +58,11 @@ config-secrets:
 		bundle \
 		exec \
 		rake \
-		mastodon:webpush:generate_vapid_key); \
+		mastodon:webpush:generate_vapid_key 2> /dev/null); \
 	echo "SECRET_KEY_BASE=$${SECRET_KEY_BASE}" | tee -a .env.production; \
 	echo "OTP_SECRET=$${OTP_SECRET}" | tee -a .env.production; \
 	echo "$${VAPID_SECRETS}" | tee -a .env.production;
-	
+
 config: config-caddy config-mastodon config-secrets
 
 setup: config-caddy
@@ -100,7 +100,8 @@ setup-admin:
 		me \
 		--email me@${SITE_ADDRESS} \
 		--confirmed \
-		--role Owner
+		--role Owner \
+		2> /dev/null
 
 setup-admin-txt:
 	make setup-admin | tee admin.txt
